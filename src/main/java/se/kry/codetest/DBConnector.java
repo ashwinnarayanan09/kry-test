@@ -7,6 +7,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLClient;
+import io.vertx.ext.sql.SQLConnection;
 
 public class DBConnector {
 
@@ -20,9 +21,11 @@ public class DBConnector {
         .put("max_pool_size", 30);
 
     client = JDBCClient.createShared(vertx, config);
+
   }
 
   public Future<ResultSet> query(String query) {
+
     return query(query, new JsonArray());
   }
 
@@ -38,14 +41,57 @@ public class DBConnector {
     Future<ResultSet> queryResultFuture = Future.future();
 
     client.queryWithParams(query, params, result -> {
+
+      System.out.println(result.toString());
       if(result.failed()){
         queryResultFuture.fail(result.cause());
-      } else {
+      }
+      else if(result.succeeded()){
         queryResultFuture.complete(result.result());
+      }
+      else {
+        queryResultFuture.complete(result.result());
+      }
+    });
+
+    return queryResultFuture;
+  }
+
+  public Future<ResultSet> getServices(String query) {
+    Future<ResultSet> queryResultFuture = Future.future();
+    client.getConnection(res -> {
+      if (res.succeeded()) {
+        SQLConnection connection = res.result();
+        connection.query(query, result -> {
+          if (result.succeeded()) {
+            queryResultFuture.complete(result.result());
+          }
+        });
+      } else {
+        // Failed to get connection - deal with it
       }
     });
     return queryResultFuture;
   }
+
+
+  public Future<ResultSet> saveService(String query) {
+    Future<ResultSet> queryResultFuture = Future.future();
+    client.getConnection(res -> {
+      if (res.succeeded()) {
+        SQLConnection connection = res.result();
+        connection.query(query, result -> {
+          if (result.succeeded()) {
+            queryResultFuture.complete(result.result());
+          }
+        });
+      } else {
+        // Failed to get connection - deal with it
+      }
+    });
+    return queryResultFuture;
+  }
+
 
 
 }
