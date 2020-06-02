@@ -1,7 +1,9 @@
 export class Service {
 
   name: string;
+  hostname:string;
+  port:number;
   url: string;
-  dateAdded: string;
+  created: string;
   status: string;
 }

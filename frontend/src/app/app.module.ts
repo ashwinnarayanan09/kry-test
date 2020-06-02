@@ -11,6 +11,8 @@ import { HomeComponent } from './components/home/home.component';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {routing} from "./app.routing";
 import {HttpClientModule} from "@angular/common/http";
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -28,6 +30,7 @@ import {HttpClientModule} from "@angular/common/http";
     MatTabsModule,
     MatTableModule,
     HttpClientModule,
+    NgbModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

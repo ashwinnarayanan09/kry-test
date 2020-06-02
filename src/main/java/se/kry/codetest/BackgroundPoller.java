@@ -3,6 +3,7 @@ package se.kry.codetest;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.ResultSet;
@@ -29,7 +30,8 @@ public class BackgroundPoller {
 
   public Future<List<String>> pollServices() {
     //Get Services to Poll
-      connector.getServices("SELECT * FROM SERVICE").setHandler(done -> {
+      JsonArray params = new JsonArray();
+      connector.execute("SELECT * FROM SERVICE",params).setHandler(done -> {
           List<JsonObject> rows = null;
           if(done.succeeded()){
               ResultSet rs = done.result();

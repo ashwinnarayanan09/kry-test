@@ -1,26 +1,49 @@
-<table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
-  <ng-container matColumnDef="name">
-    <th mat-header-cell *matHeaderCellDef> Name </th>
 
-    <td mat-cell *matCellDef="let element">{{element.name}} </td>
-  </ng-container>
 
-  <ng-container matColumnDef="url">
-    <th mat-header-cell *matHeaderCellDef> Url </th>
-    <td mat-cell *matCellDef="let element"> {{element.url}} </td>
-  </ng-container>
+<div class="input-group col-3">
+  <button class="btn btn-success"
+          (click)="openAddService(content)">
+    Add
+  </button>&nbsp;
+  <button class="btn btn-primary"
+          (click)="openUpdateService()"
+          [disabled]="!selectedRow">
+    Update
+  </button>&nbsp;
+  <button class="btn btn-danger"
+          (click)="deleteService()"
+          [disabled]="!selectedRow">
+    Delete
+  </button>
+</div>
+<br>
+<div class="table-responsive-md">
+    <table class="table table-hover table-sm">
+      <thead class="thead-light">
+      <tr>
+        <th>Name</th>
+        <th>Hostname</th>
+        <th>Port</th>
+        <th>Url</th>
+        <th>Created</th>
+        <th>Status</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let service of dataSource; let i=index;" >
+        <td>
+          <input type="checkbox" [checked]="service == selectedRow">&nbsp;{{service.name}}
+        </td>
+        <td>{{service.hostname}}</td>
+        <td>{{service.port}}</td>
+        <td>{{service.url}}</td>
+        <td>{{service.created}}</td>
+        <td>{{service.status}}</td>
 
-  <ng-container matColumnDef="dateAdded">
-    <th mat-header-cell *matHeaderCellDef> Date </th>
-    <td mat-cell *matCellDef="let element"> {{element.dateAdded}} </td>
-  </ng-container>
+      </tr>
 
-  <ng-container matColumnDef="status">
-    <th mat-header-cell *matHeaderCellDef> Status </th>
-    <td mat-cell *matCellDef="let element"> {{element.status}} </td>
-  </ng-container>
+      </tbody>
+    </table>
 
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-</table>
+  </div>

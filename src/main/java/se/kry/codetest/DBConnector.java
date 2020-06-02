@@ -57,30 +57,13 @@ public class DBConnector {
     return queryResultFuture;
   }
 
-  public Future<ResultSet> getServices(String query) {
+
+  public Future<ResultSet> execute(String query,JsonArray params) {
     Future<ResultSet> queryResultFuture = Future.future();
     client.getConnection(res -> {
       if (res.succeeded()) {
         SQLConnection connection = res.result();
-        connection.query(query, result -> {
-          if (result.succeeded()) {
-            queryResultFuture.complete(result.result());
-          }
-        });
-      } else {
-        // Failed to get connection - deal with it
-      }
-    });
-    return queryResultFuture;
-  }
-
-
-  public Future<ResultSet> saveService(String query) {
-    Future<ResultSet> queryResultFuture = Future.future();
-    client.getConnection(res -> {
-      if (res.succeeded()) {
-        SQLConnection connection = res.result();
-        connection.query(query, result -> {
+        connection.queryWithParams(query,params, result -> {
           if (result.succeeded()) {
             queryResultFuture.complete(result.result());
           }
