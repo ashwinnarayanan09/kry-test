@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import {KryServiceService} from "../../services/kry-service.service";
 import {Service} from "../../models/Service";
 import { NgbModalConfig, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import {AddServiceComponent} from "../add-service/add-service.component";
-import {MatDialog} from "@angular/material/dialog";
+
+import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
+import {MatDialogModule} from '@angular/material/dialog';
+import {AddServiceComponent} from "./add-service/add-service.component";
 
 const SERVICE_DATA: Service[] = [
   {name: 'patient-service',hostname:'localhost',port:8083, url: '/kry/patient', created: '2020-06-02',status:'OK'},
@@ -18,17 +20,24 @@ const SERVICE_DATA: Service[] = [
 })
 export class ServicesListComponent implements OnInit {
 
+  name:string='';
+
   displayedColumns: string[] = ['name','hostname','port','url', 'created','status'];
   dataSource:Service[];
 
   services:Service[];
   service:Service;
+  selectedService:Service;
 
   constructor(private kryService:KryServiceService,private modalService: NgbModal,private dialog: MatDialog) { }
 
   ngOnInit(){
-
+    this.service = new Service();
     this.getServices();
+  }
+
+  onSelect(service: Service): void {
+    this.selectedService = service;
   }
 
   getServices(){
@@ -48,18 +57,34 @@ export class ServicesListComponent implements OnInit {
 
   //Modals
 
-  openAddService(content) {
-    const modalRef = this.modalService.open(AddServiceComponent);
-    modalRef.result.then((result) => {
-      console.log(result);
-      if (result.result == "OK") {
-        this.service = result.service;
-        console.log(this.service.hostname);
-      }
+  openAddServiceDialog(): void {
+    const dialogRef = this.dialog.open(AddServiceComponent);
 
-    }, (reason) => {
-      console.log(reason);
+    dialogRef.afterClosed().subscribe(result => {
+      this.service = result;
+      console.log(result);
+      this.kryService.addService(this.service).subscribe(
+        res => {
+         console.log();
+        },
+        error => {
+          console.log("Error");
+        });;
+      //this.animal = result;
     });
+
+
+  }
+
+
+  deleteService(service:Service){
+    this.kryService.deleteService(this.service).subscribe(
+      res => {
+        console.log();
+      },
+      error => {
+        console.log("Error");
+      });;
   }
 
 }

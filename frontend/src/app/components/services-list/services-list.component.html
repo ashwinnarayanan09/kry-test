@@ -1,9 +1,7 @@
 
-
-
 <div class="input-group col-3">
   <button class="btn btn-success"
-          (click)="openAddService(content)">
+          (click)="openAddServiceDialog(content)">
     Add
   </button>&nbsp;
   <button class="btn btn-primary"
@@ -12,8 +10,8 @@
     Update
   </button>&nbsp;
   <button class="btn btn-danger"
-          (click)="deleteService()"
-          [disabled]="!selectedRow">
+          (click)="deleteService(selectedService)"
+          [disabled]="!selectedService">
     Delete
   </button>
 </div>
@@ -31,9 +29,9 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let service of dataSource; let i=index;" >
+      <tr *ngFor="let service of dataSource; let i=index;" (click)="onSelect(service)" >
         <td>
-          <input type="checkbox" [checked]="service == selectedRow">&nbsp;{{service.name}}
+          <input type="checkbox" [checked]="service == selectedService">&nbsp;{{service.name}}
         </td>
         <td>{{service.hostname}}</td>
         <td>{{service.port}}</td>

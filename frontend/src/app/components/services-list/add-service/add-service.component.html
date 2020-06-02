@@ -1,0 +1,26 @@
+
+<form class="example-form">
+  <mat-form-field class="example-full-width">
+    <mat-label>Name</mat-label>
+    <input matInput placeholder="Service Name" name="name" [(ngModel)] = "service.name">
+  </mat-form-field>
+  <br>
+  <mat-form-field class="example-full-width">
+    <mat-label>Hostname</mat-label>
+    <input matInput placeholder="Host Name" name="hostname" [(ngModel)] = "service.hostname">
+  </mat-form-field>
+  <br>
+  <mat-form-field class="example-full-width">
+    <mat-label>Port</mat-label>
+    <input matInput placeholder="Port Number" name="port" [(ngModel)] = "service.port">
+  </mat-form-field>
+  <br>
+  <mat-form-field class="example-full-width">
+    <mat-label>Url</mat-label>
+    <input matInput placeholder="Url" name="url" [(ngModel)] = "service.url">
+  </mat-form-field>
+</form>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button [mat-dialog-close]="service" cdkFocusInitial (click)="save()">Add</button>
+</mat-dialog-actions>

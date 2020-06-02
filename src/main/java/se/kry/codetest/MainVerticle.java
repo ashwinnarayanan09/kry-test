@@ -53,7 +53,7 @@ public class MainVerticle extends AbstractVerticle {
   private void setRoutes(Router router){
     router.route("/*").handler(StaticHandler.create());
     router.get("/kry/api/services").handler(this::getServices);
-    router.post("/kry/api/services/add").handler(this::addService);
+    router.post("/kry/api/services").handler(this::addService);
     router.put("/kry/api/services/update").handler(this::updateService);
     router.delete("/kry/api/services/delete").handler(this::deleteService);
 
@@ -91,7 +91,7 @@ public class MainVerticle extends AbstractVerticle {
     JsonArray params = new JsonArray()
             .add(jsonBody.getString("name"))
             .add(jsonBody.getString("hostname"))
-            .add(jsonBody.getInteger("port"))
+            .add(jsonBody.getString("port"))
             .add(jsonBody.getString("url"))
             .add("2020")
             .add("UNKNOWN")
