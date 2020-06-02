@@ -18,18 +18,21 @@ import java.util.stream.Collectors;
 
 public class MainVerticle extends AbstractVerticle {
 
-  private HashMap<String, String> services = new HashMap<>();
+  //private HashMap<String, String> services = new HashMap<>();
+  private List<Service> serviceList;
   //TODO use this
   private DBConnector connector;
-  private BackgroundPoller poller = new BackgroundPoller();
+  private BackgroundPoller poller ;
 
   @Override
   public void start(Future<Void> startFuture) {
+
     connector = new DBConnector(vertx);
+    poller = new BackgroundPoller(vertx,connector);
     Router router = Router.router(vertx);
     router.route().handler(BodyHandler.create());
     //services.put("https://www.kry.se", "UNKNOWN");
-    vertx.setPeriodic(1000 * 60, timerId -> poller.pollServices(services));
+    vertx.setPeriodic(1 * 1, timerId -> poller.pollServices());
 
     setRoutes(router);
     vertx
@@ -47,30 +50,13 @@ public class MainVerticle extends AbstractVerticle {
 
   private void setRoutes(Router router){
     router.route("/*").handler(StaticHandler.create());
-    router.get("/service").handler(req -> {
-      connector.getServices("SELECT * FROM SERVICE").setHandler(done -> {
-        if(done.succeeded()){
-          System.out.println("Data Selected");
-          ResultSet rs = done.result();
-          for (JsonArray line : rs.getResults()) {
-            System.out.println(line.encode());
-          }
+    router.get("/kry/api/services").handler(this::getServices);
+    router.post("/kry/api/services/add").handler(this::addService);
+    router.post("/kry/api/services/delete").handler(this::addService);
 
-          req.response()
-                  .putHeader("content-type", "application/json")
-                  .end(new JsonArray(rs.getResults()).encode());
-
-        } else {
-          done.cause().printStackTrace();
-        }
-
-      });;
-
-    });
-
-    router.post("/service").handler(req -> {
+    router.post("/service_old").handler(req -> {
       JsonObject jsonBody = req.getBodyAsJson();
-      services.put(jsonBody.getString("url"), "UNKNOWN");
+     // services.put(jsonBody.getString("url"), "UNKNOWN");
       connector.saveService("INSERT INTO SERVICE VALUES('TEST SERVICE','TEST URL','UNKNOWN')");
       req.response()
           .putHeader("content-type", "text/plain")
@@ -78,15 +64,66 @@ public class MainVerticle extends AbstractVerticle {
     });
   }
 
-  private void getArticles(RoutingContext routingContext) {
-    String articleId = routingContext.request()
-            .getParam("id");
-    Service service = new Service();
+  private void getServices(RoutingContext routingContext) {
 
+    connector.getServices("SELECT * FROM SERVICE").setHandler(done -> {
+      List<JsonObject> rows = null;
+      if(done.succeeded()){
+        System.out.println("Data Selected");
+        ResultSet rs = done.result();
+        for (JsonArray line : rs.getResults()) {
+          System.out.println(line.encode());
+        }
+        if(rs.getNumRows() > 0){
+          rows = rs.getRows();
+        }
+
+        routingContext.response()
+                .putHeader("content-type", "application/json")
+                .end(rows.toString());
+
+      } else {
+        done.cause().printStackTrace();
+      }
+
+    });;
+  }
+
+  private void addService(RoutingContext routingContext){
+
+    JsonObject jsonBody = routingContext.getBodyAsJson();
+    //services.put(jsonBody.getString("url"), "UNKNOWN");
+    String sql = "INSERT INTO SERVICE VALUES('TEST SERVICE','"+jsonBody.getString("url")+"','UNKNOWN')";
+    //connector.saveService("INSERT INTO SERVICE VALUES('TEST SERVICE','TEST URL','UNKNOWN')");
+    connector.saveService(sql);
     routingContext.response()
-            .putHeader("content-type", "application/json")
-            .setStatusCode(200)
-            .end(Json.encodePrettily(service));
+            .putHeader("content-type", "text/plain")
+            .end("OK");
+  }
+
+  private void deleteService(RoutingContext routingContext){
+
+    JsonObject jsonBody = routingContext.getBodyAsJson();
+    //services.put(jsonBody.getString("url"), "UNKNOWN");
+    String sql = "DELETE FROM SERVICE WHERE NAME = 'KRY'";
+    //connector.saveService("INSERT INTO SERVICE VALUES('TEST SERVICE','TEST URL','UNKNOWN')");
+    connector.saveService(sql);
+    routingContext.response()
+            .putHeader("content-type", "text/plain")
+            .end("OK");
+  }
+
+
+  private void updateServiceStatus(RoutingContext routingContext){
+
+    JsonObject jsonBody = routingContext.getBodyAsJson();
+    //services.put(jsonBody.getString("url"), "UNKNOWN");
+    String sql = "UPDATE SERVICE SET STATUS = 'OK'";
+    //connector.saveService("INSERT INTO SERVICE VALUES('TEST SERVICE','TEST URL','UNKNOWN')");
+    connector.saveService(sql);
+    routingContext.response()
+            .putHeader("content-type", "text/plain")
+            .end("OK");
   }
 
 }
