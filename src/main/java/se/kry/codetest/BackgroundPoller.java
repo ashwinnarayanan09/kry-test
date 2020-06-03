@@ -15,8 +15,8 @@ import java.util.List;
 public class BackgroundPoller {
 
     private final String SELECT_QUERY = "SELECT * FROM SERVICE";
-    private final String UPDATE_SUCCESS_QUERY = "UPDATE SERVICE SET STATUS = 'SUCCESS' WHERE NAME = ?";
-    private final String UPDATE_ERROR_QUERY = "UPDATE SERVICE SET STATUS = 'ERROR' WHERE NAME = ?";
+    private final String UPDATE_SUCCESS_QUERY = "UPDATE SERVICE SET STATUS = 'OK' WHERE NAME = ?";
+    private final String UPDATE_ERROR_QUERY = "UPDATE SERVICE SET STATUS = 'FAIL' WHERE NAME = ?";
     private final WebClient client;
     private final DBConnector connector;
 
