@@ -9,15 +9,11 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
-import se.kry.codetest.model.Service;
 import java.util.List;
 
 
 public class MainVerticle extends AbstractVerticle {
 
-  //private HashMap<String, String> services = new HashMap<>();
-  private List<Service> serviceList;
-  //TODO use this
   private DBConnector connector;
   private BackgroundPoller poller ;
   private final String SELECT_QUERY = "SELECT * FROM SERVICE";
@@ -33,8 +29,7 @@ public class MainVerticle extends AbstractVerticle {
     poller = new BackgroundPoller(vertx,connector);
     Router router = Router.router(vertx);
     router.route().handler(BodyHandler.create());
-    //services.put("https://www.kry.se", "UNKNOWN");
-  //  vertx.setPeriodic(1000 * 30, timerId -> poller.pollServices());
+    vertx.setPeriodic(1000 * 30, timerId -> poller.pollServices());
 
     setRoutes(router);
     vertx
@@ -54,8 +49,8 @@ public class MainVerticle extends AbstractVerticle {
     router.route("/*").handler(StaticHandler.create());
     router.get("/kry/api/services").handler(this::getServices);
     router.post("/kry/api/services").handler(this::addService);
-    router.put("/kry/api/services/update").handler(this::updateService);
-    router.delete("/kry/api/services/delete").handler(this::deleteService);
+    router.put("/kry/api/services").handler(this::updateService);
+    router.delete("/kry/api/services").handler(this::deleteService);
 
   }
 
@@ -65,7 +60,6 @@ public class MainVerticle extends AbstractVerticle {
     connector.execute(SELECT_QUERY,params).setHandler(done -> {
       List<JsonObject> rows = null;
       if(done.succeeded()){
-        System.out.println("Data Selected");
         ResultSet rs = done.result();
         for (JsonArray line : rs.getResults()) {
           System.out.println(line.encode());
@@ -93,13 +87,15 @@ public class MainVerticle extends AbstractVerticle {
             .add(jsonBody.getString("hostname"))
             .add(jsonBody.getString("port"))
             .add(jsonBody.getString("url"))
-            .add("2020")
             .add("UNKNOWN")
+            .add(java.time.LocalDateTime.now().toString())
+
             ;
     connector.execute(INSERT_QUERY,params);
+    JsonObject jsonObject = new JsonObject().put("status","OK");
     routingContext.response()
             .putHeader("content-type", "text/plain")
-            .end("OK");
+            .end(jsonObject.toString());
   }
 
   private void updateService(RoutingContext routingContext){
@@ -107,14 +103,15 @@ public class MainVerticle extends AbstractVerticle {
     JsonObject jsonBody = routingContext.getBodyAsJson();
     JsonArray params = new JsonArray()
             .add(jsonBody.getString("hostname"))
-            .add(jsonBody.getInteger("port"))
+            .add(jsonBody.getString("port"))
             .add(jsonBody.getString("url"))
             .add(jsonBody.getString("name"))
             ;
     connector.execute(UPDATE_QUERY,params);
+    JsonObject jsonObject = new JsonObject().put("status","OK");
     routingContext.response()
             .putHeader("content-type", "text/plain")
-            .end("OK");
+            .end(jsonObject.toString());
   }
 
   private void deleteService(RoutingContext routingContext){
@@ -122,23 +119,10 @@ public class MainVerticle extends AbstractVerticle {
     JsonObject jsonBody = routingContext.getBodyAsJson();
     JsonArray params = new JsonArray().add(jsonBody.getString("name"));
     connector.execute(DELETE_QUERY,params);
+    JsonObject jsonObject = new JsonObject().put("status","OK");
     routingContext.response()
             .putHeader("content-type", "text/plain")
-            .end("OK");
-  }
-
-
-  private void updateServiceStatus(RoutingContext routingContext){
-
-    JsonObject jsonBody = routingContext.getBodyAsJson();
-    //services.put(jsonBody.getString("url"), "UNKNOWN");
-    String sql = "UPDATE SERVICE SET STATUS = 'OK'";
-    //connector.saveService("INSERT INTO SERVICE VALUES('TEST SERVICE','TEST URL','UNKNOWN')");
-    JsonArray params = new JsonArray();
-    connector.execute(UPDATE_QUERY,params);
-    routingContext.response()
-            .putHeader("content-type", "text/plain")
-            .end("OK");
+            .end(jsonObject.toString());
   }
 
 }

@@ -1,26 +1,30 @@
 
-<form class="example-form">
+<form class="example-form" name="form" #f="ngForm" novalidate>
   <mat-form-field class="example-full-width">
     <mat-label>Name</mat-label>
-    <input matInput placeholder="Service Name" name="name" [(ngModel)] = "service.name">
+    <input matInput placeholder="Service Name" name="name" [(ngModel)] = "service.name" autocomplete="off"
+           [required] = "true">
   </mat-form-field>
   <br>
   <mat-form-field class="example-full-width">
     <mat-label>Hostname</mat-label>
-    <input matInput placeholder="Host Name" name="hostname" [(ngModel)] = "service.hostname">
+    <input matInput placeholder="Host Name" name="hostname" [(ngModel)] = "service.hostname" autocomplete="off"
+           [required] = "true">
   </mat-form-field>
   <br>
   <mat-form-field class="example-full-width">
     <mat-label>Port</mat-label>
-    <input matInput placeholder="Port Number" name="port" [(ngModel)] = "service.port">
+    <input matInput placeholder="Port Number" name="port" [(ngModel)] = "service.port" autocomplete="off"
+           [required] = "true">
   </mat-form-field>
   <br>
   <mat-form-field class="example-full-width">
     <mat-label>Url</mat-label>
-    <input matInput placeholder="Url" name="url" [(ngModel)] = "service.url">
+    <input matInput placeholder="Url" name="url" [(ngModel)] = "service.url" autocomplete="off"
+           [required] = "true">
   </mat-form-field>
 </form>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-button [mat-dialog-close]="service" cdkFocusInitial (click)="save()">Add</button>
+  <button mat-button [mat-dialog-close]="service" cdkFocusInitial (click)="save()" [disabled]="(!f.form.valid)">Add</button>
 </mat-dialog-actions>

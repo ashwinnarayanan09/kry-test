@@ -9,15 +9,14 @@ import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
-import se.kry.codetest.model.Service;
-import sun.security.provider.certpath.Vertex;
-
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
+
 
 public class BackgroundPoller {
 
+    private final String SELECT_QUERY = "SELECT * FROM SERVICE";
+    private final String UPDATE_SUCCESS_QUERY = "UPDATE SERVICE SET STATUS = 'SUCCESS' WHERE NAME = ?";
+    private final String UPDATE_ERROR_QUERY = "UPDATE SERVICE SET STATUS = 'ERROR' WHERE NAME = ?";
     private final WebClient client;
     private final DBConnector connector;
 
@@ -31,7 +30,7 @@ public class BackgroundPoller {
   public Future<List<String>> pollServices() {
     //Get Services to Poll
       JsonArray params = new JsonArray();
-      connector.execute("SELECT * FROM SERVICE",params).setHandler(done -> {
+      connector.execute(SELECT_QUERY,params).setHandler(done -> {
           List<JsonObject> rows = null;
           if(done.succeeded()){
               ResultSet rs = done.result();
@@ -46,11 +45,13 @@ public class BackgroundPoller {
                                   if (ar.succeeded()) {
                                       // Obtain response
                                       HttpResponse<Buffer> response = ar.result();
+                                      JsonArray successServiceParams = new JsonArray().add(row.getString("name"));
                                       System.out.println("Received response with status code" + response.statusCode());
-                                      connector.updateService("UPDATE SERVICE SET STATUS = 'SUCCESS'");
+                                      connector.execute(UPDATE_SUCCESS_QUERY,successServiceParams);
                                   } else {
+                                      JsonArray errorServiceParams = new JsonArray().add(row.getString("name"));
                                       System.out.println("Something went wrong " + ar.cause().getMessage());
-                                      connector.updateService("UPDATE SERVICE SET STATUS = 'FAIL'");
+                                      connector.execute(UPDATE_ERROR_QUERY,errorServiceParams);
                                   }
                               });
 
@@ -62,23 +63,6 @@ public class BackgroundPoller {
           }
 
       });
-
-    // Send a GET request
-   /* client
-            .get(8083, "localhost", "/")
-            .send(ar -> {
-              if (ar.succeeded()) {
-                // Obtain response
-                HttpResponse<Buffer> response = ar.result();
-                System.out.println("Received response with status code" + response.statusCode());
-                connector.updateService("UPDATE SERVICE SET STATUS = 'SUCCESS'");
-              } else {
-                System.out.println("Something went wrong " + ar.cause().getMessage());
-                  connector.updateService("UPDATE SERVICE SET STATUS = 'FAIL'");
-              }
-            });
-*/
-
 
     return Future.failedFuture("TODO");
   }

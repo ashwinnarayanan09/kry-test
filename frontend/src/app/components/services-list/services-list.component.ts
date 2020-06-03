@@ -1,17 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import {KryServiceService} from "../../services/kry-service.service";
 import {Service} from "../../models/Service";
-import { NgbModalConfig, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-
-import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
-import {MatDialogModule} from '@angular/material/dialog';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {MatDialog} from '@angular/material/dialog';
 import {AddServiceComponent} from "./add-service/add-service.component";
-
-const SERVICE_DATA: Service[] = [
-  {name: 'patient-service',hostname:'localhost',port:8083, url: '/kry/patient', created: '2020-06-02',status:'OK'},
-  {name: 'doctor-service', hostname:'localhost',port:8090,url: '/kry/doctor', created: '2020-06-02',status:'ERROR'},
-];
-
+import {UpdateServiceComponent} from "./update-service/update-service.component";
 
 @Component({
   selector: 'app-services-list',
@@ -21,10 +14,7 @@ const SERVICE_DATA: Service[] = [
 export class ServicesListComponent implements OnInit {
 
   name:string='';
-
-  displayedColumns: string[] = ['name','hostname','port','url', 'created','status'];
   dataSource:Service[];
-
   services:Service[];
   service:Service;
   selectedService:Service;
@@ -47,10 +37,9 @@ export class ServicesListComponent implements OnInit {
       .subscribe(result => {
           this.services = result;
           this.dataSource = this.services;
-          console.log(this.services);
         },
         error => {
-          console.log("Error fetching service");
+          console.log(error);
         });
 
   }
@@ -62,28 +51,47 @@ export class ServicesListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       this.service = result;
-      console.log(result);
       this.kryService.addService(this.service).subscribe(
         res => {
-         console.log();
+         console.log(res);
+         this.getServices();
         },
         error => {
-          console.log("Error");
+          console.log(error);
         });;
-      //this.animal = result;
     });
 
 
   }
 
+  openUpdateServiceDialog(service:Service): void {
+    const dialogRef = this.dialog.open(UpdateServiceComponent,{data:service});
+
+    dialogRef.afterClosed().subscribe(result => {
+      this.service = result;
+      this.service.name = this.selectedService.name;
+      console.log(result);
+      this.kryService.updateService(this.service).subscribe(
+        res => {
+          console.log(res);
+          this.getServices();
+        },
+        error => {
+          console.log(error);
+        });;
+    });
+
+
+  }
 
   deleteService(service:Service){
-    this.kryService.deleteService(this.service).subscribe(
+    this.kryService.deleteService(service).subscribe(
       res => {
-        console.log();
+        console.log(res);
+        this.getServices();
       },
       error => {
-        console.log("Error");
+        console.log(error);
       });;
   }
 

@@ -6,6 +6,7 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.junit5.Timeout;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,12 +24,12 @@ public class TestMainVerticle {
     vertx.deployVerticle(new MainVerticle(), testContext.succeeding(id -> testContext.completeNow()));
   }
 
-  @Test
-  @DisplayName("Start a web server on localhost responding to path /service on port 8080")
+
+  @DisplayName("Start a web server on localhost responding to path /services on port 8083")
   @Timeout(value = 10, timeUnit = TimeUnit.SECONDS)
   void start_http_server(Vertx vertx, VertxTestContext testContext) {
     WebClient.create(vertx)
-        .get(8080, "::1", "/service")
+        .get(8083, "::1", "/kry/api/services")
         .send(response -> testContext.verify(() -> {
           assertEquals(200, response.result().statusCode());
           JsonArray body = response.result().bodyAsJsonArray();

@@ -75,24 +75,4 @@ public class DBConnector {
     return queryResultFuture;
   }
 
-
-  public Future<ResultSet> updateService(String query) {
-    Future<ResultSet> queryResultFuture = Future.future();
-    client.getConnection(res -> {
-      if (res.succeeded()) {
-        SQLConnection connection = res.result();
-        connection.query(query, result -> {
-          if (result.succeeded()) {
-            queryResultFuture.complete(result.result());
-          }
-        });
-      } else {
-        // Failed to get connection - deal with it
-      }
-    });
-    return queryResultFuture;
-  }
-
-
-
 }

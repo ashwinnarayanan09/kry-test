@@ -37,7 +37,14 @@ dependencies {
   testRuntime("org.junit.jupiter:junit-jupiter-engine:$junitJupiterEngineVersion")
 }
 
-
+task copyFiles{
+  copy{
+    from ('frontend/dist'){
+      exclude '*.txt'
+    }
+    into 'webroot'
+  }
+}
 shadowJar {
   classifier = 'fat'
   manifest {
@@ -62,3 +69,4 @@ run {
 task wrapper(type: Wrapper) {
   gradleVersion = '4.6'
 }
+

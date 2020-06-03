@@ -17,13 +17,15 @@ import { AddServiceComponent } from './components/services-list/add-service/add-
 import {MatFormField} from "@angular/material/form-field";
 import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
+import { UpdateServiceComponent } from './components/services-list/update-service/update-service.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ServicesListComponent,
     HomeComponent,
-    AddServiceComponent
+    AddServiceComponent,
+    UpdateServiceComponent
   ],
   imports: [
     BrowserModule,
